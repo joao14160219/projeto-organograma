@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Organograma GoJS com Card</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/gojs/release/go.js"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      background: #f4f6f8;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      padding: 15px 30px;
+      background: #007e8a;
+      color: #fff;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);;
+    }
+
+    header img {
+      height: 70px;
+      margin-right: 20px;
+    }
+
+    header h1 {
+      font-size: 24px;
+      margin-left: 23%;
+    }
+
+    #organograma {
+      width: 90%;
+      height: 600px;
+      margin: 30px auto;
+      border: 1px solid #ccc;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    #baixarBtn {
+      display: block;
+      margin: 10px auto 30px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #007e8a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #baixarBtn:hover {
+      background: #005f66;
+    }
+
+    .card {
+      position: fixed;      
+      bottom: 20px;
+      right: 20px;
+      width: 350px;
+      height: auto;
+      background: linear-gradient(135deg, #e0f7fa, #b2ebf2); 
+      border: 2px solid #007e8a;
+      border-radius: 16px;  
+      padding: 20px;
+      font-family: "Lilita One", sans-serif;
+      font-size: 20px;
+      color: #004d52;       
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25); 
+      z-index: 1000;
+      display: none;
+      pointer-events: auto;
+      transition: all 0.3s ease;
+      letter-spacing: 0.8px;
+    }
+
+    .card b {
+      color: #007e8a;
+      font-size: 23px;
+      letter-spacing: 1px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .card.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .card.hide {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+
+    select {
+      color: rgb(85, 85, 85);
+      border-radius: 8px;
+      border: none;
+      box-shadow: 0 4px 8px rgba(63, 63, 63, 0.1);
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <img src="logo-verzani1.png" alt="Logo da Empresa">
+  <h1>ORGANOGRAMA CORPORATIVO</h1>
+  <select id="modeloSelect" style="margin-left: 20px; padding: 5px 10px; font-size: 16px;">
+    <option value="pequena">Pequena Empresa</option>
+    <option value="media">Média Empresa</option>
+    <option value="grande">Grande Empresa</option>
+  </select>
+</header>
+
+
+<div id="organograma"></div>
+<button id="baixarBtn">Baixar Organograma</button>
+<div id="card" class="card"></div>
+
+<script>
+function init() {
+  const $ = go.GraphObject.make;
+
+  const myDiagram = $(go.Diagram, "organograma", {
+    initialAutoScale: go.Diagram.Uniform,
+    layout: $(go.TreeLayout, { angle: 90, layerSpacing: 50 }),
+    "undoManager.isEnabled": true
+  });
+
+  // Dados dos colaboradores (10 pessoas)
+ const modelos = {
+  pequena: [
+    { key: 1, name: "ELON MUSK", cargo: "CEO", secao: "Diretoria Executiva", departamento: "Gestão Estratégica" },
+    { key: 2, parent: 1, name: "JEFF BEZOS", cargo: "CFO", secao: "Financeiro", departamento: "Contabilidade" },
+    { key: 3, parent: 1, name: "BILL GATES", cargo: "CTO", secao: "TI", departamento: "Desenvolvimento" },
+    { key: 4, parent: 3, name: "TIM COOK", cargo: "GERENTE", secao: "TI", departamento: "Infraestrutura" },
+    { key: 5, parent: 3, name: "MARK ZUCKERBERG", cargo: "GERENTE", secao: "TI", departamento: "Produtos" }
+  ],
+  media: [
+    { key: 1, name: "ELON MUSK", cargo: "CEO", secao: "Diretoria Executiva", departamento: "Gestão Estratégica" },
+    { key: 2, parent: 1, name: "JEFF BEZOS", cargo: "CFO", secao: "Financeiro", departamento: "Contabilidade" },
+    { key: 3, parent: 1, name: "BILL GATES", cargo: "CTO", secao: "TI", departamento: "Desenvolvimento" },
+    { key: 4, parent: 3, name: "TIM COOK", cargo: "GERENTE", secao: "TI", departamento: "Infraestrutura" },
+    { key: 5, parent: 3, name: "MARK ZUCKERBERG", cargo: "GERENTE", secao: "TI", departamento: "Produtos" },
+    { key: 6, parent: 2, name: "SUSAN WOJCICKI", cargo: "CONTADORA", secao: "Financeiro", departamento: "Pagamentos" },
+    { key: 7, parent: 2, name: "WARREN BUFFET", cargo: "ANALISTA FINANCEIRO", secao: "Financeiro", departamento: "Investimentos" },
+    { key: 8, parent: 4, name: "SHERYL SANDBERG", cargo: "COORDENADORA", secao: "TI", departamento: "Infraestrutura" },
+    { key: 9, parent: 5, name: "SUNDAR PICHAI", cargo: "COORDENADOR", secao: "TI", departamento: "Produtos" }
+  ],
+  grande: [
+    { key: 1, name: "ELON MUSK", cargo: "CEO", secao: "Diretoria Executiva", departamento: "Gestão Estratégica" },
+    { key: 2, parent: 1, name: "JEFF BEZOS", cargo: "CFO", secao: "Financeiro", departamento: "Contabilidade" },
+    { key: 3, parent: 1, name: "BILL GATES", cargo: "CTO", secao: "TI", departamento: "Desenvolvimento" },
+    { key: 4, parent: 3, name: "TIM COOK", cargo: "GERENTE", secao: "TI", departamento: "Infraestrutura" },
+    { key: 5, parent: 3, name: "MARK ZUCKERBERG", cargo: "GERENTE", secao: "TI", departamento: "Produtos" },
+    { key: 6, parent: 2, name: "SUSAN WOJCICKI", cargo: "CONTADORA", secao: "Financeiro", departamento: "Pagamentos" },
+    { key: 7, parent: 2, name: "WARREN BUFFET", cargo: "ANALISTA FINANCEIRO", secao: "Financeiro", departamento: "Investimentos" },
+    { key: 8, parent: 4, name: "SHERYL SANDBERG", cargo: "COORDENADORA", secao: "TI", departamento: "Infraestrutura" },
+    { key: 9, parent: 5, name: "SUNDAR PICHAI", cargo: "COORDENADOR", secao: "TI", departamento: "Produtos" },
+    { key: 10, parent: 1, name: "MARISSA MAYER", cargo: "DIRETORA", secao: "Marketing", departamento: "Publicidade" },
+    { key: 11, parent: 10, name: "RICHARD BRANSON", cargo: "ANALISTA MARKETING", secao: "Marketing", departamento: "Campanhas" },
+    { key: 12, parent: 1, name: "OPRAH WINFREY", cargo: "DIRETORA", secao: "RH", departamento: "Gestão de Pessoas" },
+    { key: 13, parent: 12, name: "LEONARDO DEL VECCHIO", cargo: "COORDENADOR RH", secao: "RH", departamento: "Treinamento" },
+    { key: 14, parent: 1, name: "LARRY PAGE", cargo: "DIRETOR", secao: "Inovação", departamento: "Produtos" },
+    { key: 15, parent: 14, name: "SERGEY BRIN", cargo: "GERENTE", secao: "Inovação", departamento: "Projetos Especiais" }
+  ]
+};
+
+
+// Inicializa organograma com modelo escolhido
+const select = document.getElementById("modeloSelect");
+function atualizarDiagrama() {
+  const modeloEscolhido = modelos[select.value];
+  myDiagram.model = new go.TreeModel(modeloEscolhido);
+}
+
+// Listener para trocar o modelo
+select.addEventListener("change", atualizarDiagrama);
+
+// Inicializa o diagrama com modelo inicial
+atualizarDiagrama();
+
+
+  // Node template com clique para mostrar card
+  myDiagram.nodeTemplate =
+    $(go.Node, "Auto",
+      $(go.Shape, "RoundedRectangle", { fill: "#e0f7fa", stroke: "#007e8a", strokeWidth: 2 }),
+      $(go.Panel, "Vertical",
+        $(go.TextBlock, { font: "bold 14px Arial", margin: 5 }, new go.Binding("text", "name")),
+        $(go.TextBlock, { font: "12px Arial", margin: 2 }, new go.Binding("text", "cargo"))
+      ),
+      {
+        click: function(e, node) {
+          const card = document.getElementById("card");
+          card.style.display = "block";
+          card.innerHTML =
+            "<b>Nome:</b> " + node.data.name + "<br>" +
+            "<b>Cargo:</b> " + node.data.cargo + "<br>" +
+            "<b>Seção:</b> " + node.data.secao + "<br>" +
+            "<b>Departamento:</b> " + node.data.departamento;
+        }
+      }
+    );
+
+  // Link template
+  myDiagram.linkTemplate =
+    $(go.Link, { routing: go.Link.Orthogonal, corner: 5 },
+      $(go.Shape, { stroke: "#007e8a", strokeWidth: 2 })
+    );
+
+  // TreeModel
+  myDiagram.model = new go.TreeModel(colaboradores);
+
+  // Clique fora do node fecha o card
+  myDiagram.addDiagramListener("BackgroundSingleClicked", function(e) {
+    const card = document.getElementById("card");
+    card.style.display = "none";
+  });
+
+  // Botão de baixar organograma
+  document.getElementById("baixarBtn").addEventListener("click", function() {
+    const imgData = myDiagram.makeImageData({ background: "white", scale: 1 });
+    const a = document.createElement("a");
+    a.href = imgData;
+    a.download = "organograma.png";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+
+}
+
+init();
+</script>
+
+</body>
+</html>
